@@ -43,3 +43,23 @@ async Task PeekMessages()
         }
     }
 }
+
+async Task PeekMessages64String()
+{
+    QueueClient queueClient = new QueueClient(connectionString, queueName);
+    int maxMessages = 10;
+
+    if (queueClient.Exists())
+    {
+        PeekedMessage[] peekedMessages = await queueClient.PeekMessagesAsync(maxMessages);
+        Console.WriteLine("The orders in the queue");
+        foreach (var message in peekedMessages)
+        {
+            var base64String = System.Convert.FromBase64String(message.Body.ToString());
+            var stringData = System.Text.Encoding.UTF8.GetString(base64String);
+            Order order = JsonConvert.DeserializeObject<Order>(stringData);
+            Console.WriteLine("Order Id {0}", order.OrderID);
+            Console.WriteLine("Order Quantity {0}", order.Quantity);
+        }
+    }
+}

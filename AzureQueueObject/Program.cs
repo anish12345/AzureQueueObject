@@ -6,11 +6,11 @@ using Newtonsoft.Json;
 string connectionString = "DefaultEndpointsProtocol=https;AccountName=anishstorage786;AccountKey=E0ShJ37KOKnzUF5p5ijvLKigF1Tm02OJPsKQ0UqA+ouiwPZ+LC0oMXt56Ky4Vg0dpaJdwiIA8UT++ASt4lT15Q==;EndpointSuffix=core.windows.net";
 string queueName = "anishqueue";
 
-await PeekMessages();
+//await PeekMessages();
 
 // send message 
-//await SendMessage("1",786);
-//await SendMessage("2",92);
+await SendMessage("1",786);
+await SendMessage("2",92);
 
 async Task SendMessage(string orderid, int quantity)
 {
@@ -18,7 +18,10 @@ async Task SendMessage(string orderid, int quantity)
     if (queueClient.Exists())
     {
         Order order = new Order { OrderID = orderid, Quantity = quantity };
-        await queueClient.SendMessageAsync(JsonConvert.SerializeObject(order));
+        var jsonObject = JsonConvert.SerializeObject(order);
+        var bytes = System.Text.Encoding.UTF8.GetBytes(jsonObject);
+        var message = System.Convert.ToBase64String(bytes);
+        await queueClient.SendMessageAsync(message); // JsonConvert.SerializeObject(order)
         Console.WriteLine("Order Id {0} sent", orderid);
     }
 }
